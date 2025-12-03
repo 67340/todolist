@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//testing whether or not the hook is working
 
 static void print_usage(const char* prog) {
     printf("Usage:\n");
