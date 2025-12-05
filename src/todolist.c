@@ -1,4 +1,5 @@
 #include "todolist.h"
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,26 +30,47 @@ static char* read_file(const char* filename) {
    Load tasks from JSON
    ============================================================ */
 Task* load_tasks(size_t* out_count) {
+    LOG_DEBUG("Loading tasks from file: %s", TASKS_FILE);
+
     *out_count = 0;
 
     char* json_text = read_file(TASKS_FILE);
     if (!json_text) {
+        LOG_INFO("Task file '%s' not found. Starting with an empty list.", TASKS_FILE);
         return NULL;    // no file yet, no tasks
     }
+
+    LOG_DEBUG("File '%s' read successfully, parsing JSON...", TASKS_FILE);
 
     cJSON* root = cJSON_Parse(json_text);
     free(json_text);
 
-    if (!root || !cJSON_IsArray(root)) {
+    if (!root) {
+        LOG_ERROR("Failed to parse JSON from '%s'. File content is invalid.", TASKS_FILE);
+        return NULL;
+    }
+
+    if (!cJSON_IsArray(root)) {
+        LOG_ERROR("Expected root JSON array, but file '%s' is malformed.", TASKS_FILE);
         cJSON_Delete(root);
         return NULL;
     }
 
     size_t count = cJSON_GetArraySize(root);
+    LOG_INFO("Loaded %zu task(s) from file.", count);
+
     Task* tasks = malloc(sizeof(Task) * count);
+    if (!tasks) {
+        LOG_ERROR("Memory allocation failed while loading %zu tasks.", count);
+        cJSON_Delete(root);
+        return NULL;
+    }
 
     for (size_t i = 0; i < count; i++) {
         cJSON* item = cJSON_GetArrayItem(root, i);
+
+        /* Optional debug of each ID loaded */
+        LOG_DEBUG("Parsing task index %zu", i);
 
         tasks[i].id = cJSON_GetObjectItem(item, "id")->valueint;
 
@@ -68,9 +90,12 @@ Task* load_tasks(size_t* out_count) {
     }
 
     cJSON_Delete(root);
+
+    LOG_INFO("Successfully built in-memory task list.");
     *out_count = count;
     return tasks;
 }
+
 
 /* ============================================================
    Save tasks to JSON

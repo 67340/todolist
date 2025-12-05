@@ -1,4 +1,5 @@
 #include "todolist.h"
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,8 @@ static void print_usage(const char* prog) {
  *   todo upcoming
  */
 int main(int argc, char** argv) {
+    log_set_level(LOG_LEVEL_INFO);
+    LOG_INFO("Program started with %d argument(s).", argc);
     const char* prog = (argc > 0) ? argv[0] : "todo";
 
     if (argc < 2) {
