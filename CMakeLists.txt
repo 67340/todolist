@@ -1,9 +1,14 @@
+
 cmake_minimum_required(VERSION 3.16)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(todo_deadlines
     VERSION 0.1.0
     LANGUAGES C
 )
+
+enable_testing()
 
 # C standard
 set(CMAKE_C_STANDARD 11)
@@ -28,6 +33,7 @@ FetchContent_MakeAvailable(cjson)
 add_executable(todo
     src/main.c
     src/todolist.c
+    src/log.c
 )
 
 # Link with cJSON
@@ -44,3 +50,23 @@ install(TARGETS todo
 )
 
 include(CPack)
+
+# ==========================
+# Static analysis: cppcheck
+# ==========================
+find_program(CPPCHECK_EXECUTABLE NAMES cppcheck)
+
+if(CPPCHECK_EXECUTABLE)
+    add_custom_target(static-analysis
+        COMMAND ${CPPCHECK_EXECUTABLE}
+            --enable=all
+            --inconclusive
+            --std=c11
+            --language=c
+            --quiet
+            ${CMAKE_SOURCE_DIR}/src
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running cppcheck static analysis"
+    )
+endif()
+
