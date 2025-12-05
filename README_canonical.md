@@ -3,13 +3,13 @@
 This project is a command-line **task management tool** written in C.  
 It demonstrates modern software engineering practices:
 
-✔ Build automation (CMake)  
-✔ Static code analysis  
-✔ Pre-commit hook integration  
-✔ Logging infrastructure  
-✔ Unit testing  
-✔ Debugging tooling  
-✔ Project documentation & release management  
+  Build automation (CMake)  
+  Static code analysis  
+  Pre-commit hook integration  
+  Logging infrastructure  
+  Unit testing  
+  Debugging tooling  
+  Project documentation & release management  
 
 It was created as part of coursework requirements.
 
@@ -17,13 +17,13 @@ It was created as part of coursework requirements.
 
 ## Features
 
-✔ Add tasks with deadlines  
-✔ List existing tasks  
-✔ Mark tasks as completed  
-✔ Persistent storage using JSON  
-✔ Logging with multiple severity levels  
-✔ Unit test support  
-✔ Static analysis configuration  
+  Add tasks with deadlines  
+  List existing tasks  
+  Mark tasks as completed  
+  Persistent storage using JSON  
+  Logging with multiple severity levels  
+  Unit test support  
+  Static analysis configuration  
 
 ---
 
@@ -75,7 +75,7 @@ Executable output:
 
 ---
 
-## ▶️ Usage
+## Usage
 
 ### Add a task
 
