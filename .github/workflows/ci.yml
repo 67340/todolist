@@ -20,7 +20,8 @@ jobs:
       - name: Install toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} cmake make
+          sudo apt-get install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} cmake make libcjson-dev
+
 
       - name: Configure (CMake)
         env:
@@ -53,6 +54,8 @@ jobs:
           curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_linux_x64.tar.gz -o gitleaks.tar.gz
           tar -xzf gitleaks.tar.gz gitleaks
           sudo mv gitleaks /usr/local/bin/gitleaks
+          sudo apt-get install -y cmake make cppcheck clang-format libcjson-dev
+
 
       - name: Configure (CMake)
         run: |
