@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-test-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for changelog)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make gcc doxygen
+
+      - name: Build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      - name: Generate Doxygen docs (optional artifact)
+        run: |
+          mkdir -p docs/doxygen
+          doxygen Doxyfile
+
+      - name: Package artifacts
+        run: |
+          mkdir -p dist
+          cp build/todo dist/ || true
+          tar -czf dist/todo-${GITHUB_REF_NAME}-linux.tar.gz -C dist todo || true
+          tar -czf dist/doxygen-${GITHUB_REF_NAME}.tar.gz -C docs/doxygen html || true
+
+      - name: Generate changelog since last tag
+        id: changelog
+        run: |
+          # Previous tag (if any)
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            RANGE=""
+          else
+            RANGE="$PREV_TAG..HEAD"
+          fi
+
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
+          {
+            echo "## Changelog"
+            if [ -z "$RANGE" ]; then
+              echo ""
+              echo "- First release."
+            else
+              echo ""
+              git log $RANGE --pretty=format:"- %s (%h)"
+            fi
+          } > RELEASE_NOTES.md
+
+      - name: Create GitHub Release + upload artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/todo-*.tar.gz
+            dist/doxygen-*.tar.gz
